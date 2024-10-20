@@ -1,0 +1,56 @@
+TIER 0
+MACHINE 1:
+use ctrl+c to cancel a command in terminal (ex. ping xx.xx.xx.xx will ping infinite until canceled)
+nmap = network mapper
+use by
+	sudo nmap -sV 10.129.86.169
+in this instance, we see port 23/tcp in an 'open' state running the 'telnet' service, an old service used for
+remote management of other hosts on the network
+after this, we run 'telnet 10.129.86.169' and we see a "Hack the Box" with a Meow login.
+some accounts (admin, administrator, root) are left with blank passwords and we can login...
+in this instance, the root login works with no password. we can use the 'ls' command to see what's in the directory
+we see "flag.txt" and "snap" so we will use 'cat flag.txt' to see what is written in this text file.
+
+MACHINE 2:
+ftp = file transfer protocol. can nmap the ftp ip address and see if you can connect to it via "ftp"
+A typical misconfiguration for running FTP services allows an anonymous account to access the service like
+any other authenticated user. The anonymous username can be input when the prompt appears, followed
+by any password whatsoever since the service will disregard the password for this specific account.
+can run the "get" command to download a file while connected to an ftp
+i ran "get file.txt" and it downloaded, typed "bye" to exit ftp, then got the flag by doing "cat flag.txt"
+since the file downloaded from the ftp to my vm desktop
+
+MACHINE 3:
+SMB = server message block
+OSI Model
+	1. physical layer
+	2. data link layer
+	3. network layer
+	4. transport layer
+	5. session layer
+	6. presentation layer
+	7. application layer
+Using the SMB protocol, an application (or the user of an application) can access files at a remote server,
+along with other resources such as printers. Thus, a client application can read, create, and update files on
+the remote server. It can also communicate with any server program that is set up to receive an SMB client
+request.
+used sudo nmap -sV 10.129.206.87 to nmap the ip address. i see 445/tcp open so we will connect to that
+used smbclient -L 10.129.206.87 to connect to the SMB
+pops up with some sharenames and a password
+will try to do smbclient \\\\10.129.206.87\\ADMIN$ (C$, IPC$, WorkShares also show)
+ADMIN$ gave us "NT_STATUS_ACCESS_DENIED"
+will try with other usernames, and WorkShares worked. we will do the help command to see what's available,
+and "ls" is available so we will run that. it shows with some username files so we'll check those out
+we do cd James.p and then ls and we see flag.txt. we will run get flag.txt to download it
+we will run the "exit" command to leave the SMB and we can now "cat flag.txt" to view the contents
+
+MACHINE 4:
+the usage of redis-cli command line utility helps interact with the Redis service
+running nmap -p- -sV 10.129.73.207 and we see port 6379 is open with redis
+we'll then connect to the server with redis-cli -h 10.129.73.207 and run the "info" command
+we're then going to run "select 0" to select the keyspace section (provides statistics on the main dictionary
+of each database. includes numbers of keys, and number of keys with an expiration)
+we can then run the "keys *" command to list all the keys
+finally, we see the "flag" key so we will use the "get flag" command
+
+end of the free Tier 0 section!
